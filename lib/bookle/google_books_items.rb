@@ -7,13 +7,10 @@ module Google
 			attr_reader :kind, :total_items, :items
 
 			def initialize(google_response)
-# b:pepe
-puts google_response
-# e:pepe
 				books_info 	= JSON.parse(google_response)
 
 				@kind 				= books_info["kind"]
-				@total_items 	= books_info["totalItems"]
+				@total_items 	= books_info["totalItems"] || 0
 
 				if books_info["items"]
 					@items = books_info["items"].collect {|item| Google::Books::Item.new(item)}

@@ -1,5 +1,6 @@
 # OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
 # def search(isbn='9780140196092')
+# https://www.googleapis.com/books/v1/volumes?key=AIzaSyAUJ0psGl0udam2kFzT29L2YWAhCF748ik&q=inauthor:keyes&maxResults=40&startIndex=40
 
 require 'net/https'
 require 'bookle/google_books_items'
@@ -7,80 +8,65 @@ require 'bookle/google_books_items'
 module Google
 	module Books
 		class API
-			GOOGLE_SEARCH_KEYWORDS = {
-				'in_title'			=> 'intitle',
-				'in_author'			=> 'inauthor',
-				'in_publisher'	=> 'inpublisher',
-				'in_subject'		=> 'subject',
-				'isbn'					=> 'isbn',
-				'lccn'					=> 'lccn',
-				'oclc'					=> 'oclc'
+
+			GOOGLE_OPTIONAL_PARAMETERS = {
+				'start_index_at'	=> 'startIndex',				# starts at 0 (default)
+				'maximum_results'	=> 'maxResults'					# [0..40], default=10
 			}
-			SCHEME 						= 'https'
-			HOST 							= 'www.googleapis.com'
-			PATH 							= 'books/v1/volumes'
-			KEY_PARAM_NAME		= 'key'
-			QUERY_MARKER			= 'q'
-			ISBN_MARKER				= 'isbn'
-			KEYWORD_SEPARATOR = '+'
-
-			attr_writer :google_books_api_key
-
-			attr_reader :books, :book, :search_options, :raw_response
-
-			attr_accessor :cacert_path		# cacert = certification authority certificates
-
-			def initialize(google_books_api_key)
-				@google_books_api_key = google_books_api_key
-				@cacert_path 					= 'lib/cacert/cacert.pem'
-				@search_options 			= {}
-			end
 
 			# Prefixed some of the keywords with 'in_' to convey the Google meaning that the value is found *in* the content.
 			# Google differentiates between *in* content and *is* content.
-			def search_keywords
-				GOOGLE_SEARCH_KEYWORDS.keys
+			GOOGLE_QUERY_KEYWORDS	= {
+				'title'						=> 'intitle',
+				'author'					=> 'inauthor',
+				'publisher'				=> 'inpublisher',
+				'subject'					=> 'subject',						# *in* subject
+				'isbn'						=> 'isbn',							# ISBN
+				'lccn'						=> 'lccn',							# Library of Congress Control Number
+				'oclc'						=> 'oclc'								# Online Computer Library Center number
+			}
+
+			attr_reader :volumes, :volume, :raw_response
+
+			# cacert = certification authority certificates
+			attr_accessor *(GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys).map{|method_name| method_name.to_sym} << :google_books_api_key
+
+			def initialize(google_books_api_key)
+				contents = `gem contents bookle`
+				puts contents.class
+				puts contents.inspect
+				@google_books_api_key = google_books_api_key
+				@cacert_path 					= File.dirname(`gem which bookle`.chomp) + '/cacert/cacert.pem'
 			end
 
-			def set_search_option(keyword, value)
-				if search_keywords.include? keyword.to_s
-					@search_options[keyword.to_s] = value.to_s
-				end
+			def search_accessors
+				GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys
 			end
 
-			def build_search_values
-				search_values = ''
-
-				@search_options.each do |key, value|
-					if search_keywords.include? key
-						search_values += KEYWORD_SEPARATOR unless search_values.nil? || search_values.strip.empty?
-						search_values += "#{GOOGLE_SEARCH_KEYWORDS[key]}:#{URI.escape(value.to_s)}"		# Need to escape values or search might fail.
-					end
+			def clear_search_options
+				search_accessors.each do |method_name|
+					__send__ method_name.to_sym, nil
 				end
 
-				search_values
+				nil
 			end
 
 			# Build and also let the user query the string.
+			# schema 						= https
+			# host							= www.googleapis.com`
+			# path 							= books/v1/volumes
+			# key marker 				= key
+			# query marker 			= q
+			# keyword separator	= + (used in build_query_options())
 			def uri_string
-				"#{SCHEME}://#{HOST}/#{PATH}?#{KEY_PARAM_NAME}=#{@google_books_api_key}&#{QUERY_MARKER}=#{build_search_values}"
+				"https://www.googleapis.com/books/v1/volumes?key=#{@google_books_api_key}#{build_optional_parameters}&q=#{build_query_options}"
 			end
 
 			# The Google Books API builds its query using 'OR', not 'AND'. That means that the more keywords used during the search
 			# the wider the range of results.
 			# When search options are passed to this method prior search options set with the set_search_option method will be disregarded.
 			# def search(isbn='9780140196092')
-			def search(options={})
-				raise "The search method only accepts a Hash object." unless search_options.class == Hash
-
-				# Replace search options if options passed.
-				unless options.empty?
-					@search_options.clear
-					options.each {|key, value| set_search_option(key, value)}
-				end
-
-				raise "No search options have been set yet." if @search_options.empty?
-
+			def search
 				google_response	= nil
 				uri 						= URI(uri_string)
 				http 						= Net::HTTP.new(uri.host, uri.port)
@@ -89,12 +75,42 @@ module Google
 
 				http.start {http.request_get("#{uri.path}?#{uri.query}") {|response| @raw_response = response.body}}
 
-				items 	= Google::Books::Items.new(@raw_response)
-				@books 	= items.items || []
-				@book  	= books.first
+				items 		= Google::Books::Items.new(@raw_response)
+				@volumes 	= items.items || []
+				@volume 	= volumes.first
 
 				items
 			end
+
+
+			private
+
+				def build_optional_parameters
+					string = ''
+
+					GOOGLE_OPTIONAL_PARAMETERS.each do |method_name, query_parameter|
+						unless __send__(method_name.to_sym).nil?
+							# Need to escape values or search might fail due to spaces, etc.
+							string += "&#{query_parameter}=#{URI.escape(__send__(method_name.to_sym).to_s)}"
+						end
+					end
+
+					string
+				end
+
+				def build_query_options
+					string = ''
+
+					GOOGLE_QUERY_KEYWORDS.each do |method_name, query_keyword|
+						unless __send__(method_name.to_sym).nil?
+							# Need to escape values or search might fail due to spaces, etc.
+							string += "#{query_keyword}:#{URI.escape(__send__(method_name.to_sym).to_s)}+"
+						end
+					end
+
+					# Return string except for last keyword separator.
+					string.chop
+				end
 
 		end
 	end
