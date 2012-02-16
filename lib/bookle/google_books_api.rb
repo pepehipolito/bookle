@@ -2,6 +2,9 @@
 # def search(isbn='9780140196092')
 # https://www.googleapis.com/books/v1/volumes?key=AIzaSyAUJ0psGl0udam2kFzT29L2YWAhCF748ik&q=inauthor:keyes&maxResults=40&startIndex=40
 
+# Solution to SSL problem on Windows:
+# https://gist.github.com/867550
+
 require 'net/https'
 require 'bookle/google_books_items'
 
@@ -28,15 +31,10 @@ module Google
 
 			attr_reader :volumes, :volume, :raw_response
 
-			# cacert = certification authority certificates
 			attr_accessor *(GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys).map{|method_name| method_name.to_sym} << :google_books_api_key
 
 			def initialize(google_books_api_key)
-				contents = `gem contents bookle`
-				puts contents.class
-				puts contents.inspect
 				@google_books_api_key = google_books_api_key
-				@cacert_path 					= File.dirname(`gem which bookle`.chomp) + '/cacert/cacert.pem'
 			end
 
 			def search_accessors
@@ -71,7 +69,7 @@ module Google
 				uri 						= URI(uri_string)
 				http 						= Net::HTTP.new(uri.host, uri.port)
 				http.use_ssl 		= uri.scheme == 'https'
-				http.ca_file 		= @cacert_path
+				http.ca_file 		= cacert_path
 
 				http.start {http.request_get("#{uri.path}?#{uri.query}") {|response| @raw_response = response.body}}
 
@@ -80,6 +78,40 @@ module Google
 				@volume 	= volumes.first
 
 				items
+			end
+
+
+			# cacert = certification authority certificates
+			def update_cacert_file
+				file_path = cacert_path
+
+				Net::HTTP.start("curl.haxx.se") do |http|
+				  resp = http.get("/ca/cacert.pem")
+
+				  if resp.code == "200"
+				  	File.delete("#{file_path}_old") if File.exists?("#{file_path}_old")
+				  	File.rename(file_path, "#{file_path}_old")
+				  	File.open(file_path, "w") {|file| file.write(resp.body)}
+
+				    puts "\n\nAn updated version of the file with the certfication authority certificates has been installed to"
+				    puts "#{cacert_path}\n"
+				  else
+				    puts "\n\nUnable to download a new version of the certification authority certificates.\n"
+				  end
+				end
+			rescue => e
+				puts "\n\nErrors were encountered while updating the certification authority certificates file.\n"
+
+				unless File.exists?(file_path)
+					if File.exists?("#{file_path}_old")
+						File.rename("#{file_path}_old", file_path)
+					else
+						puts "\nThe certification authority certificates file could not be found nor restored.\n"
+					end
+				end
+
+				puts "\nError information:\n"
+				puts e.message
 			end
 
 
@@ -110,6 +142,10 @@ module Google
 
 					# Return string except for last keyword separator.
 					string.chop
+				end
+
+				def cacert_path
+					File.dirname(`gem which bookle`.chomp) + '/cacert/cacert.pem'
 				end
 
 		end
