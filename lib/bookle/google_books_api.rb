@@ -29,12 +29,14 @@ module Google
 				'oclc'						=> 'oclc'								# Online Computer Library Center number
 			}
 
-			attr_reader :volumes, :volume, :raw_response
+			attr_reader :total_volumes, :volumes, :volume, :raw_response
 
 			attr_accessor *(GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys).map{|method_name| method_name.to_sym} << :google_books_api_key
 
 			def initialize(google_books_api_key)
 				@google_books_api_key = google_books_api_key
+				@total_volumes				= 0
+				@volumes 							= []
 			end
 
 			def search_accessors
@@ -43,7 +45,7 @@ module Google
 
 			def clear_search_options
 				search_accessors.each do |method_name|
-					__send__ method_name.to_sym, nil
+					__send__ "#{method_name}=".to_sym, nil
 				end
 
 				nil
@@ -73,9 +75,11 @@ module Google
 
 				http.start {http.request_get("#{uri.path}?#{uri.query}") {|response| @raw_response = response.body}}
 
-				items 		= Google::Books::Items.new(@raw_response)
-				@volumes 	= items.items || []
-				@volume 	= volumes.first
+				items 					= Google::Books::Items.new(@raw_response)
+
+				@total_volumes 	= items.total_items || 0
+				@volumes 				= items.items 			|| []
+				@volume 				= volumes.first
 
 				items
 			end
@@ -94,7 +98,7 @@ module Google
 				  	File.open(file_path, "w") {|file| file.write(resp.body)}
 
 				    puts "\n\nAn updated version of the file with the certfication authority certificates has been installed to"
-				    puts "#{cacert_path}\n"
+				    puts "#{cacert_path}\n\n"
 				  else
 				    puts "\n\nUnable to download a new version of the certification authority certificates.\n"
 				  end
