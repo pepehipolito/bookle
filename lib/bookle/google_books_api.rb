@@ -6,6 +6,7 @@
 # https://gist.github.com/867550
 
 require 'net/https'
+require 'hasherizer'
 require 'bookle/google_books_items'
 
 module Google
@@ -116,6 +117,10 @@ module Google
 
 				puts "\nError information:\n"
 				puts e.message
+			end
+
+			def volume_as_hash
+				Hasherizer.to_hash(@volume || {})
 			end
 
 

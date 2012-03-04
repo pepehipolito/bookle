@@ -12,7 +12,7 @@ module Google
 				if volume_info
 					@title 									= volume_info["title"]
 					@subtitle 							= volume_info["subtitle"]
-					@authors  							= volume_info["authros"]
+					@authors  							= volume_info["authors"]
 					@publisher 							= volume_info["publisher"]
 					@published_date 				= volume_info["published_date"]
 					@description 						= volume_info["description"]
@@ -32,6 +32,7 @@ module Google
 					@canonical_volume_link 	= volume_info["canonicalVolumeLink"]
 				end
 			end
+
 		end
 	end
 end

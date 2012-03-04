@@ -6,7 +6,7 @@ module Google
 			def initialize(price)
 				if price
 					@amount					= price["amount"]
-					@currency_code	= price["currency_code"]
+					@currency_code	= price["currencyCode"]
 				end
 			end
 

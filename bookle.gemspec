@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://rubygems.org/gems/bookle'
 
   s.add_runtime_dependency 'json', '~> 1.1'
+  s.add_runtime_dependency 'hasherizer', '~> 0.0'
 end
 
 # Need to install cacert.pem here, after the gem has been created.

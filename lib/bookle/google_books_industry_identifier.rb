@@ -8,6 +8,10 @@ module Google
 				@identifier = identifier["identifier"]
 			end
 
+			def to_hash
+				{self.type.downcase => self.identifier}
+			end
+
 		end
 	end
 end

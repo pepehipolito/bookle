@@ -8,6 +8,11 @@ module Google
 					@is_available = pdf["isAvailable"]
 				end
 			end
+
+			def to_hash
+				{"is_pdf_available" => self.is_available}
+			end
+
 		end
 	end
 end

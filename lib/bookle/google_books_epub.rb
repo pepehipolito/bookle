@@ -9,6 +9,10 @@ module Google
 				end
 			end
 
+			def to_hash
+				{"is_epub_available" => self.is_available}
+			end
+
 		end
 	end
 end

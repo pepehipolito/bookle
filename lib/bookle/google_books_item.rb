@@ -18,6 +18,7 @@ module Google
 				@access_info 	= Google::Books::AccessInfo.new(item["accessInfo"])
 				@search_info 	= Google::Books::SearchInfo.new(item["searchInfo"])
 			end
+
 		end
 	end
 end

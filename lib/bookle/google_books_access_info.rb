@@ -4,12 +4,12 @@ require 'bookle/google_books_pdf'
 module Google
 	module Books
 		class AccessInfo
-			attr_reader :country, :viewability, :embeddable, :public_domain, :text_to_speech_permission, :epub, :pdf, :web_reader_link,
+			attr_reader :access_country, :viewability, :embeddable, :public_domain, :text_to_speech_permission, :epub, :pdf, :web_reader_link,
 				:access_view_status
 
 			def initialize(access_info)
 				if access_info
-					@country 										= access_info["country"]
+					@access_country 						= access_info["country"]
 					@viewability 								= access_info["viewability"]
 					@embeddable 								= access_info["embeddable"]
 					@public_domain 							= access_info["publicDomain"]
@@ -20,6 +20,7 @@ module Google
 					@access_view_status 				= access_info["accessViewStatus"]
 				end
 			end
+
 		end
 	end
 end
