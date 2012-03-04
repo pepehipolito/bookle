@@ -1,1 +1,57 @@
-Still in development.
+= Bookle
+
+Query Google Books[http://code.google.com/apis/books/] API[http://code.google.com/apis/books/docs/v1/using.html].
+
+
+= How Bookle works
+
+Bookle is a Ruby friendly API that allows to query Google's API by Title, Subject, Author, ISBN and more. Check the documentation[] for more information.
+
+
+= How to use it
+
+Require the gem:
+
+<tt>require 'bookle'</tt>
+
+Instantiate the API class:
+
+<tt>api = Google::Books::API.new('my Google Books API key')</tt>
+
+Set one of the searchable fields to a value:
+
+<tt>api.subject = 'flowers'</tt>
+
+Process the results:
+
+<tt>api.volumes.each...</tt>
+
+The original intent of the gem was to search by ISBN. To that effect a convenience instance variable has been created called <tt>volume</tt>. If the instance variable is not set it could be that either the search was unsuccessful or that Google's API returned more than one result for the same ISBN. During testing I have found that Google's API has even returned volumes with ISBN values that don't match the value searched, although those cases have been very limited.
+
+
+= Warning
+
+The Google Books API is kind of "flaky". While running tests I discovered that while doing general searches (expecting more than one volume to be returned) the total count of volumes/books returned by the API varied while running searches for the same value(s) multiple times. For example, searching for 'Flowers' in the subject sometimes produced a total count of volumes of 165, other times 142, other times 107. This was even more apparent as using "pagination" through the results.
+
+Take into consideration this while working with the returned results and do not base your logic on the number of volumes the API says it has, it very likely not be accurate.
+
+
+== Contact Info
+ 
+I can be contacted at mailto:pepe.hipolito@gmail.com
+
+
+== Contributing to Hasherizer
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
+* Fork the project.
+* Start a feature/bugfix branch.
+* Commit and push until you are happy with your contribution.
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+
+== Copyright
+
+Copyright (c) 2012 Pepe Hipolito. MIT license. See LICENSE.txt for further details.
