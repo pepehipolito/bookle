@@ -31,16 +31,24 @@ module Google
 
 			attr_accessor *(GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys).map{|method_name| method_name.to_sym} << :google_books_api_key
 
+		  # Instantiates the API for a given Google key.
+		  # 
+		  # @param [String, #read] -- Google API key.
+		  # @return [Google::Books::API] -- An API to interact with the Google Books API.
 			def initialize(google_books_api_key)
 				@google_books_api_key = google_books_api_key
 				@total_volumes				= 0
 				@volumes 							= []
 			end
 
+		  # Returns a list of accessors that can be used to set the search criteria.
+		  # 
+		  # @return [Array] -- A list of accessors that can be used to set the search criteria.
 			def search_accessors
 				GOOGLE_QUERY_KEYWORDS.keys + GOOGLE_OPTIONAL_PARAMETERS.keys
 			end
 
+		  # Clears the search criteria.
 			def clear_search_options
 				search_accessors.each do |method_name|
 					__send__ "#{method_name}=".to_sym, nil
@@ -49,21 +57,14 @@ module Google
 				nil
 			end
 
-			# Build and also let the user query the string.
-			# schema 						= https
-			# host							= www.googleapis.com`
-			# path 							= books/v1/volumes
-			# key marker 				= key
-			# query marker 			= q
-			# keyword separator	= + (used in build_query_options())
+			# Builds and also lets users query the URI string used to interact with the Google API.
 			def uri_string
 				"https://www.googleapis.com/books/v1/volumes?key=#{@google_books_api_key}#{build_optional_parameters}&q=#{build_query_options}"
 			end
 
-			# The Google Books API builds its query using 'OR', not 'AND'. That means that the more keywords used during the search
-			# the wider the range of results.
-			# When search options are passed to this method prior search options set with the set_search_option method will be disregarded.
-			# def search(isbn='9780140196092')
+			# Runs the search against the Google API.
+			#
+		  # @return [Array] -- An array of volumes (or what the Google API calls "items").
 			def search
 				google_response	= nil
 				uri 						= URI(uri_string)
@@ -83,8 +84,11 @@ module Google
 			end
 
 
-			# cacert = certification authority certificates
+			# Updates the SSL certificates file.
+			#
+		  # @return [String] -- Either a successful message or an error explanation.
 			def update_cacert_file
+				# cacert = certification authority certificates
 				file_path = cacert_path
 
 				Net::HTTP.start("curl.haxx.se") do |http|
@@ -119,6 +123,9 @@ module Google
 
 			private
 
+				# Returns a string with optional parameters that the URI string uses to query the Google API.
+				#
+			  # @return [String] -- A string with optional parameters that the URI string uses to query the Google API.
 				def build_optional_parameters
 					string = ''
 
@@ -132,6 +139,9 @@ module Google
 					string
 				end
 
+				# Returns a string with the query string that the URI string uses to query the Google API.
+				#
+			  # @return [String] -- A string with the query string that the URI string uses to query the Google API.
 				def build_query_options
 					string = ''
 
@@ -146,6 +156,9 @@ module Google
 					string.chop
 				end
 
+				# Returns the full path of where the cacert file lives.
+				#
+			  # @return [String] -- The full path of where the cacert file lives.
 				def cacert_path
 					File.dirname(`gem which bookle`.chomp) + '/cacert/cacert.pem'
 				end

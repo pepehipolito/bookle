@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'bookle'
-  s.version     = '0.0.1'
-  s.date        = '2012-02-09'
+  s.version     = '0.0.2'
+  s.date        = '2012-03-04'
   s.summary     = "Google Books API volume search."
   s.description = "Allows to search for books within Google Books. This is basically an adapter for the Google Books API for volume searches."
   s.authors     = ["Pepe Hipolito"]
