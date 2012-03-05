@@ -1,12 +1,9 @@
 # OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
-# def search(isbn='9780140196092')
-# https://www.googleapis.com/books/v1/volumes?key=AIzaSyAUJ0psGl0udam2kFzT29L2YWAhCF748ik&q=inauthor:keyes&maxResults=40&startIndex=40
-
 # Solution to SSL problem on Windows:
 # https://gist.github.com/867550
+# https://www.googleapis.com/books/v1/volumes?key=AIzaSyAUJ0psGl0udam2kFzT29L2YWAhCF748ik&q=inauthor:keyes&maxResults=40&startIndex=40
 
 require 'net/https'
-require 'hasherizer'
 require 'bookle/google_books_items'
 
 module Google
@@ -119,10 +116,6 @@ module Google
 				puts e.message
 			end
 
-			def volume_as_hash
-				Hasherizer.to_hash(@volume || {})
-			end
-
 
 			private
 
@@ -160,25 +153,3 @@ module Google
 		end
 	end
 end
-
-# q 	Full-text query string.
-
-#     When creating a query, list search terms separated by a '+', in the form q=term1+term2_term3.
-#     (Alternatively, you can separate them with a space, but as with all of the query parameter values,
-#     the spaces must then be URL encoded.)
-#     The API returns all entries that match all of the search terms (like using AND between terms).
-#     Like Google's web search, the API searches on complete words (and related words with the same stem), not substrings.
-#     To search for an exact phrase, enclose the phrase in quotation marks: q="exact phrase".
-#     To exclude entries that match a given term, use the form q=-term.
-#     The search is case-insensitive.
-#     Example: to search for all entries that contain the exact phrase "Elizabeth Bennet" and the word "Darcy"
-#     but don't contain the word "Austen", use the following query parameter value:
-#     q="Elizabeth+Bennet"+Darcy-Austen
-#     There are special keywords you can specify in the search terms to search in particular fields, such as:
-#         intitle: Returns results where the text following this keyword is found in the title.
-#         inauthor: Returns results where the text following this keyword is found in the author.
-#         inpublisher: Returns results where the text following this keyword is found in the publisher.
-#         subject: Returns results where the text following this keyword is listed in the category list of the volume.
-#         isbn: Returns results where the text following this keyword is the ISBN number.
-#         lccn: Returns results where the text following this keyword is the Library of Congress Control Number.
-#         oclc: Returns results where the text following this keyword is the Online Computer Library Center number.

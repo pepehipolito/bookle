@@ -1,3 +1,4 @@
+require 'hasherizer'
 require 'bookle/google_books_volume_info'
 require 'bookle/google_books_sale_info'
 require 'bookle/google_books_access_info'
@@ -17,6 +18,10 @@ module Google
 				@sale_info 		= Google::Books::SaleInfo.new(item["saleInfo"])
 				@access_info 	= Google::Books::AccessInfo.new(item["accessInfo"])
 				@search_info 	= Google::Books::SearchInfo.new(item["searchInfo"])
+			end
+
+			def hash
+				Hasherizer.to_hash(self)
 			end
 
 		end

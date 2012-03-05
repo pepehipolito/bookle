@@ -21,12 +21,16 @@ Process the results:
 
 <tt>api.volumes.each...</tt>
 
-The original intent of the gem was to search by ISBN. To that effect a convenience instance variable has been created called <tt>volume</tt>. If the instance variable is not set it could be that either the search was unsuccessful or that Google's API returned more than one result for the same ISBN. During testing I have found that Google's API has even returned volumes with ISBN values that don't match the value searched, although those cases have been very limited. When there is more than one volume returned the convenience variable is never set to a value and will contain the <tt>nil</tt> value.
+The original intent of the gem was to search by ISBN. To that effect a convenience instance variable has been created called <tt>volume</tt> that contains a volume/book object. If the instance variable is empty it could mean that either the search was unsuccessful or that Google's API returned more than one result for the same ISBN, which happened during testing, even thought the ISBNs didn't match.
+
+The volume/book objects returned by Bookle have been endowed with a method called <tt>hash</tt>. This method returns a flat (one level) hash containing all values of the volume to help with the instantiation of book objects and/or assigning values to them. It can be used like this:
+
+<tt>api.volume.hash</tt>
 
 
 = Warning
 
-The Google Books API is kind of "flaky" with the number of total volumes it reports back. While running tests I discovered that when queried multiple times with the same values the total count of volumes/books returned by the API varied. For example, searching for 'Flowers' in the Subject sometimes produced a total count of volumes of 165, other times 142, other times 107. This was even more apparent while paginating through the results. Take this into consideration while working with the returned results and do not base your logic on the number of volumes the API says it has, it very likely will not be accurate.
+The Google Books API is kind of "flaky" with the number of total volumes it reports back. While running tests I discovered that when queried multiple times with the same values the total count of volumes/books returned by the API varied. For example, searching for 'Flowers' in the Subject sometimes produced a total count of 165 volumes, other times 142, other times 107... This was even more apparent while paginating through the results. Take this into consideration while working with the returned results and do not base your logic on the number of volumes the API says it has, it very likely will not be accurate.
 
 
 == Contact Info
