@@ -4,9 +4,8 @@ module Google
 			attr_reader :text_snippet
 
 			def initialize(search_info)
-				if search_info
-					@text_snippet = search_info["textSnippet"]
-				end
+        search_info   = {} unless search_info
+				@text_snippet = search_info["textSnippet"]
 			end
 		end
 	end

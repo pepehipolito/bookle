@@ -10,6 +10,7 @@ module Google
 			attr_reader :kind, :id, :etag, :self_link, :volume_info, :sale_info, :access_info, :search_info
 
 			def initialize(item)
+				item 					= {} unless item
 				@kind 				= item["kind"]
 				@id 					= item["id"]
 				@etag					= item["etag"]
@@ -23,7 +24,6 @@ module Google
 			def hash
 				Hasherizer.to_hash(self)
 			end
-
 		end
 	end
 end

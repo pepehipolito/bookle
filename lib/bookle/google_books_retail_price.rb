@@ -7,7 +7,6 @@ module Google
 			def to_hash
 				{"retail_price_amount" => self.amount, "retail_price_currency_code" => self.currency_code}
 			end
-
 		end
 	end
 end

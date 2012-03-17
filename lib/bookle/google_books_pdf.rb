@@ -4,15 +4,13 @@ module Google
 			attr_reader :is_available
 
 			def initialize(pdf)
-				if pdf
-					@is_available = pdf["isAvailable"]
-				end
+				pdf 					= {} unless pdf
+				@is_available = pdf["isAvailable"]
 			end
 
 			def to_hash
 				{"is_pdf_available" => self.is_available}
 			end
-
 		end
 	end
 end

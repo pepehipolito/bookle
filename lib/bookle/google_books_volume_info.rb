@@ -9,30 +9,28 @@ module Google
 				:info_link, :canonical_volume_link
 
 			def initialize(volume_info)
-				if volume_info
-					@title 									= volume_info["title"]
-					@subtitle 							= volume_info["subtitle"]
-					@authors  							= volume_info["authors"]
-					@publisher 							= volume_info["publisher"]
-					@published_date 				= volume_info["published_date"]
-					@description 						= volume_info["description"]
-					@industry_identifiers 	= volume_info["industryIdentifiers"].collect do
-																			|i| Google::Books::IndustryIdentifier.new(i)
-																		end if volume_info["industryIdentifiers"]
-					@page_count 						= volume_info["pageCount"]
-					@print_type 						= volume_info["printType"]
-					@categories 						= volume_info["categories"]
-					@average_rating 				= volume_info["averageRating"]
-					@ratings_count 					= volume_info["ratingsCount"]
-					@content_version 				= volume_info["contentVersion"]
-					@image_links 						= Google::Books::ImageLinks.new(volume_info["imageLinks"])
-					@language 							= volume_info["language"]
-					@preview_link 					= volume_info["previewLink"]
-					@info_link 							= volume_info["infoLink"]
-					@canonical_volume_link 	= volume_info["canonicalVolumeLink"]
-				end
+				volume_info 						= {} unless volume_info
+				@title 									= volume_info["title"]
+				@subtitle 							= volume_info["subtitle"]
+				@authors  							= volume_info["authors"]
+				@publisher 							= volume_info["publisher"]
+				@published_date 				= volume_info["published_date"]
+				@description 						= volume_info["description"]
+				@industry_identifiers 	= volume_info["industryIdentifiers"].collect do
+																		|i| Google::Books::IndustryIdentifier.new(i)
+																	end if volume_info["industryIdentifiers"]
+				@page_count 						= volume_info["pageCount"]
+				@print_type 						= volume_info["printType"]
+				@categories 						= volume_info["categories"]
+				@average_rating 				= volume_info["averageRating"]
+				@ratings_count 					= volume_info["ratingsCount"]
+				@content_version 				= volume_info["contentVersion"]
+				@image_links 						= Google::Books::ImageLinks.new(volume_info["imageLinks"])
+				@language 							= volume_info["language"]
+				@preview_link 					= volume_info["previewLink"]
+				@info_link 							= volume_info["infoLink"]
+				@canonical_volume_link 	= volume_info["canonicalVolumeLink"]
 			end
-
 		end
 	end
 end
